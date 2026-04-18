@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, forwardRef } from 'react';
 import html2canvas from 'html2canvas';
 import { formatBounty, getBountyRank } from '../utils/bountyCalculator';
 
@@ -7,8 +7,9 @@ const FRUIT_EMOJI = {
   mera: '🔥', hie: '❄️', yomi: '💀', none: null,
 };
 
-export default function WantedPoster({ character, bounty, decisions }) {
-  const posterRef = useRef(null);
+const WantedPoster = forwardRef(function WantedPoster({ character, bounty, decisions, hideDownload = false }, captureRef) {
+  const internalRef = useRef(null);
+  const posterRef = captureRef || internalRef;
   const [downloading, setDownloading] = useState(false);
   const { rank } = getBountyRank(bounty);
 
@@ -251,13 +252,17 @@ export default function WantedPoster({ character, bounty, decisions }) {
         </div>
       </div>
 
-      <button
-        onClick={downloadPoster}
-        disabled={downloading}
-        className="px-6 py-2.5 rounded-xl bg-amber-600 text-stone-950 font-bold hover:bg-amber-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-sm shadow-lg"
-      >
-        {downloading ? '⏳ Generando...' : '📥 Descargar poster'}
-      </button>
+      {!hideDownload && (
+        <button
+          onClick={downloadPoster}
+          disabled={downloading}
+          className="px-6 py-2.5 rounded-xl bg-amber-600 text-stone-950 font-bold hover:bg-amber-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-sm shadow-lg"
+        >
+          {downloading ? '⏳ Generando...' : '📥 Descargar poster'}
+        </button>
+      )}
     </div>
   );
-}
+});
+
+export default WantedPoster;

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import WantedPoster from './WantedPoster';
+import PuzzleReveal from './PuzzleReveal';
 import { getBountyRank, formatBounty } from '../utils/bountyCalculator';
 import { playFanfare, playClick } from '../utils/sounds';
 
@@ -90,9 +90,7 @@ export default function ResultScreen({ character, bounty, decisions, crew = [], 
         </div>
       )}
 
-      <div className="animate-popin">
-        <WantedPoster character={character} bounty={bounty} decisions={decisions} crew={crew} />
-      </div>
+      <PuzzleReveal character={character} bounty={bounty} decisions={decisions} crew={crew} />
 
       {/* Summary */}
       <div className="w-full max-w-md mt-6 rounded-3xl p-5 border border-white/10 animate-slideup"
