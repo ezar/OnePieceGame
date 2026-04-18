@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import WantedPoster from './WantedPoster';
+import { renderPosterToCanvas } from '../utils/posterCanvas';
 import { playFanfare, playSelect, playClick } from '../utils/sounds';
 
 const GRID = 3;
@@ -35,29 +34,22 @@ function isSolved(tiles) {
 }
 
 export default function PuzzleReveal({ character, bounty, decisions, crew }) {
-  const captureRef = useRef(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [imgSize, setImgSize] = useState(null);
   const [tiles, setTiles] = useState(null);
   const [solved, setSolved] = useState(false);
   const [moves, setMoves] = useState(0);
   const [hint, setHint] = useState(false);
-  const captured = useRef(false);
 
   useEffect(() => {
-    if (captured.current) return;
-    const timer = setTimeout(async () => {
-      if (!captureRef.current) return;
-      captured.current = true;
-      await document.fonts.ready;
-      const canvas = await html2canvas(captureRef.current, {
-        scale: 1, useCORS: true, allowTaint: true, logging: false,
-      });
+    let cancelled = false;
+    renderPosterToCanvas({ character, bounty, decisions }).then((canvas) => {
+      if (cancelled) return;
       setImgSize({ w: canvas.width, h: canvas.height });
       setImageUrl(canvas.toDataURL('image/png'));
       setTiles(shufflePuzzle());
-    }, 600);
-    return () => clearTimeout(timer);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   function handleTileClick(cellIdx) {
@@ -108,14 +100,9 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
     <div className="flex flex-col items-center gap-4">
 
       {!imageUrl ? (
-        /* Poster visible while capturing — replaced by puzzle once done */
-        <div className="relative">
-          <WantedPoster ref={captureRef} character={character} bounty={bounty} decisions={decisions} hideDownload />
-          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-sm"
-            style={{ background: 'rgba(10,30,60,0.85)', backdropFilter: 'blur(2px)' }}>
-            <div className="text-5xl float mb-3">⏳</div>
-            <p className="text-blue-200 font-black text-lg">Preparando tu recompensa...</p>
-          </div>
+        <div className="flex flex-col items-center gap-3 py-8">
+          <div className="text-5xl float">⏳</div>
+          <p className="text-blue-200 font-black text-lg">Preparando tu recompensa...</p>
         </div>
       ) : !solved ? (
         <div className="flex flex-col items-center gap-3 animate-fadein">
@@ -126,7 +113,6 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
           <p className="text-blue-200 text-sm text-center">Descubre tu cartel de recompensa</p>
           <p className="text-white/40 text-xs">{moves} movimientos</p>
 
-          {/* Puzzle grid */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${GRID}, ${tileW}px)`,
@@ -137,7 +123,6 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
             border: '2px solid rgba(255,255,255,0.1)',
             position: 'relative',
           }}>
-            {/* Hint overlay */}
             {hint && imageUrl && (
               <div style={{
                 position: 'absolute', inset: 6, borderRadius: 14, zIndex: 10,
@@ -165,7 +150,7 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
                     backgroundImage: isEmpty ? 'none' : `url(${imageUrl})`,
                     backgroundSize: `${bgW}px ${bgH}px`,
                     backgroundPosition: `-${tileCol * tileW}px -${tileRow * tileH}px`,
-                    background: isEmpty ? 'rgba(255,255,255,0.03)' : undefined,
+                    backgroundColor: isEmpty ? 'rgba(255,255,255,0.03)' : undefined,
                     border: isEmpty
                       ? '2px dashed rgba(255,255,255,0.08)'
                       : isMovable
