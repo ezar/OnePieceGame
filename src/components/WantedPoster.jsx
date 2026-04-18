@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import { formatBounty, getBountyRank } from '../utils/bountyCalculator';
 
@@ -9,6 +9,7 @@ const FRUIT_EMOJI = {
 
 export default function WantedPoster({ character, bounty, decisions }) {
   const posterRef = useRef(null);
+  const [downloading, setDownloading] = useState(false);
   const { rank } = getBountyRank(bounty);
 
   const dominantTrait = (() => {
@@ -26,14 +27,27 @@ export default function WantedPoster({ character, bounty, decisions }) {
   };
 
   async function downloadPoster() {
-    if (!posterRef.current) return;
-    const canvas = await html2canvas(posterRef.current, {
-      scale: 2, useCORS: true, backgroundColor: null,
-    });
-    const link = document.createElement('a');
-    link.download = `wanted_${character.name.replace(/\s+/g, '_')}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    if (!posterRef.current || downloading) return;
+    setDownloading(true);
+    try {
+      await document.fonts.ready;
+      const canvas = await html2canvas(posterRef.current, {
+        scale: 2, useCORS: true, allowTaint: true, logging: false,
+      });
+      const filename = `wanted_${character.name.replace(/\s+/g, '_')}.png`;
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/png');
+    } finally {
+      setDownloading(false);
+    }
   }
 
   const fruitEmoji = FRUIT_EMOJI[character.devilFruit?.id];
@@ -239,9 +253,10 @@ export default function WantedPoster({ character, bounty, decisions }) {
 
       <button
         onClick={downloadPoster}
-        className="px-6 py-2.5 rounded-xl bg-amber-600 text-stone-950 font-bold hover:bg-amber-500 transition-colors text-sm shadow-lg"
+        disabled={downloading}
+        className="px-6 py-2.5 rounded-xl bg-amber-600 text-stone-950 font-bold hover:bg-amber-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-sm shadow-lg"
       >
-        📥 Descargar poster
+        {downloading ? '⏳ Generando...' : '📥 Descargar poster'}
       </button>
     </div>
   );
