@@ -6,36 +6,58 @@ import { calculateBounty } from './utils/bountyCalculator';
 
 const STEPS = { CREATE: 'create', PLAY: 'play', RESULT: 'result' };
 
+function OceanBg() {
+  return (
+    <div className="ocean-bg">
+      <div className="wave wave1" />
+      <div className="wave wave2" />
+      <div className="wave wave3" />
+    </div>
+  );
+}
+
 export default function App() {
   const [step, setStep] = useState(STEPS.CREATE);
   const [character, setCharacter] = useState(null);
   const [decisions, setDecisions] = useState([]);
+  const [crew, setCrew] = useState([]);
 
   function handleCharacterComplete(char) {
     setCharacter(char);
     setStep(STEPS.PLAY);
   }
 
-  function handleDecisionsComplete(dec) {
+  function handleDecisionsComplete(dec, newCrew) {
     setDecisions(dec);
+    setCrew(newCrew);
     setStep(STEPS.RESULT);
   }
 
   function handleRestart() {
     setCharacter(null);
     setDecisions([]);
+    setCrew([]);
     setStep(STEPS.CREATE);
   }
 
-  if (step === STEPS.CREATE) return <CharacterCreator onComplete={handleCharacterComplete} />;
-  if (step === STEPS.PLAY) return <DecisionGame character={character} onComplete={handleDecisionsComplete} />;
-  if (step === STEPS.RESULT)
-    return (
-      <ResultScreen
-        character={character}
-        bounty={calculateBounty(character, decisions)}
-        decisions={decisions}
-        onRestart={handleRestart}
-      />
-    );
+  return (
+    <>
+      <OceanBg />
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {step === STEPS.CREATE && <CharacterCreator onComplete={handleCharacterComplete} />}
+        {step === STEPS.PLAY && (
+          <DecisionGame character={character} onComplete={handleDecisionsComplete} />
+        )}
+        {step === STEPS.RESULT && (
+          <ResultScreen
+            character={character}
+            bounty={calculateBounty(character, decisions)}
+            decisions={decisions}
+            crew={crew}
+            onRestart={handleRestart}
+          />
+        )}
+      </div>
+    </>
+  );
 }
