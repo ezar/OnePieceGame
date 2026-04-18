@@ -1,16 +1,34 @@
-# React + Vite
+# 🏴‍☠️ One Piece Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Juego web inspirado en la serie live-action de One Piece (Netflix).
 
-Currently, two official plugins are available:
+Crea tu personaje pirata, elige una Akuma no Mi, distribuye tus atributos y enfrenta 6 decisiones épicas. Al final obtienes tu **cartel de SE BUSCA** con tu recompensa calculada — descargable como imagen.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🎮 **[Jugar ahora](https://ezar.github.io/OnePieceGame/)**
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Cómo se juega
 
-## Expanding the ESLint configuration
+1. **Crea tu personaje** — elige nombre, mar de origen, Akuma no Mi y distribuye 10 puntos entre 5 atributos
+2. **Toma decisiones** — 6 escenarios del show donde tus stats determinan qué opciones puedes ejecutar con éxito
+3. **Obtén tu recompensa** — la fórmula combina tus stats, tu fruta y tus decisiones para calcular tu bounty
+4. **Descarga tu poster** — cartel de SE BUSCA estilo Marine exportable como PNG
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Stack
+
+- React 18 + Vite 5
+- Tailwind CSS 3
+- html2canvas (exportar poster)
+- Deploy en GitHub Pages
+
+## Desarrollo local
+
+```bash
+npm install
+npm run dev
+```
+
+## Deploy
+
+El deploy es automático via GitHub Actions al hacer push a `master`.
