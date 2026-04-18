@@ -1,26 +1,32 @@
 import { useState } from 'react';
-import { scenarios } from '../data/scenarios';
-import { CREW_MEMBERS } from '../data/crew';
+import { getScenarios } from '../data/scenarios';
+import { getCrewMembers } from '../data/crew';
 import CrewCard from './CrewCard';
 import { playClick, playSuccess, playFail, playSelect } from '../utils/sounds';
+import { useLang } from '../i18n/LangContext';
 
 const ISLANDS = [
-  { name: 'Foosha',       emoji: '🏝️' },
-  { name: 'Shells Town',  emoji: '⚓' },
-  { name: 'Orange Town',  emoji: '🍊' },
-  { name: 'Syrup Village',emoji: '🌿' },
-  { name: 'Baratie',      emoji: '🍖' },
-  { name: 'Arlong Park',  emoji: '🦈' },
+  { name: 'Foosha',        emoji: '🏝️' },
+  { name: 'Shells Town',   emoji: '⚓' },
+  { name: 'Orange Town',   emoji: '🍊' },
+  { name: 'Syrup Village', emoji: '🌿' },
+  { name: 'Baratie',       emoji: '🍖' },
+  { name: 'Arlong Park',   emoji: '🦈' },
 ];
 
 export default function DecisionGame({ character, onComplete }) {
+  const { t, lang } = useLang();
   const [step, setStep] = useState(0);
   const [decisions, setDecisions] = useState([]);
   const [crew, setCrew] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [newMember, setNewMember] = useState(null);
 
+  const scenarios = getScenarios(lang);
+  const CREW_MEMBERS = getCrewMembers(lang);
   const scenario = scenarios[step];
+
+  if (!scenario) return null;
 
   function getEffectiveStats() {
     const bonuses = crew.reduce((acc, m) => {
@@ -47,7 +53,6 @@ export default function DecisionGame({ character, onComplete }) {
       bountyBonus: meetsReq ? choice.bountyBonus : Math.round(choice.bountyBonus * 0.4),
     };
 
-    // Crew recruitment
     let recruited = null;
     if (choice.recruitId) {
       const alreadyHave = crew.some((m) => m.id === choice.recruitId);
@@ -96,17 +101,15 @@ export default function DecisionGame({ character, onComplete }) {
         <CrewCard member={newMember} onDismiss={() => setNewMember(null)} />
       )}
 
-      {/* Crew mini-bar */}
       {crew.length > 0 && (
         <div className="w-full max-w-md mb-3 flex items-center gap-2">
-          <span className="text-xs text-blue-300 font-bold">Tripulación:</span>
+          <span className="text-xs text-blue-300 font-bold">{t.game.crewLabel}</span>
           {crew.map((m) => (
             <span key={m.id} className="text-xl" title={m.name}>{m.emoji}</span>
           ))}
         </div>
       )}
 
-      {/* Island map */}
       <div className="w-full max-w-md mb-5">
         <div className="flex items-center justify-between">
           {ISLANDS.map((island, i) => {
@@ -135,7 +138,6 @@ export default function DecisionGame({ character, onComplete }) {
         </div>
       </div>
 
-      {/* Card */}
       <div className="w-full max-w-md rounded-3xl p-6 shadow-2xl border border-white/10 animate-slideup"
         style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
 
@@ -152,6 +154,7 @@ export default function DecisionGame({ character, onComplete }) {
               {scenario.choices.map((choice, i) => {
                 const eff = choice.statRequired ? effectiveStats[choice.statRequired] : null;
                 const canDo = !choice.statRequired || eff >= choice.statMin;
+                const statLabel = choice.statRequired ? t.stats[choice.statRequired]?.label : null;
                 return (
                   <button key={i}
                     onClick={() => { playSelect(); choose(choice); }}
@@ -159,11 +162,11 @@ export default function DecisionGame({ character, onComplete }) {
                     style={{ background: 'rgba(255,255,255,0.05)' }}>
                     <span>{choice.text}</span>
                     {choice.recruitId && (
-                      <span className="ml-2 text-xs text-yellow-300">★ puede reclutar tripulante</span>
+                      <span className="ml-2 text-xs text-yellow-300">{t.game.recruitTag}</span>
                     )}
                     {choice.statRequired && (
                       <span className={`ml-2 text-xs font-black ${canDo ? 'text-green-400' : 'text-red-400'}`}>
-                        [{choice.statRequired} {choice.statMin}+ {canDo ? '✓' : `✗ tienes ${eff}`}]
+                        [{statLabel} {choice.statMin}+ {canDo ? '✓' : `✗ ${t.game.statYouHave} ${eff}`}]
                       </span>
                     )}
                   </button>
@@ -189,11 +192,11 @@ export default function DecisionGame({ character, onComplete }) {
             )}
             {feedback.recruited && (
               <div className="text-sm text-yellow-300 font-bold animate-wiggle">
-                ✨ ¡{feedback.recruited.name} se une a tu tripulación!
+                ✨ {t.game.joinsCrew(feedback.recruited.name)}
               </div>
             )}
             {!feedback.meetsReq && (
-              <p className="text-xs text-white/40">No tenías los stats suficientes. Recompensa reducida.</p>
+              <p className="text-xs text-white/40">{t.game.insufficientStats}</p>
             )}
             <button onClick={next}
               className="w-full py-3 rounded-2xl font-black text-lg text-stone-900 active:scale-95 transition-all"
@@ -203,7 +206,7 @@ export default function DecisionGame({ character, onComplete }) {
                 background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
                 boxShadow: '0 4px 20px rgba(245,158,11,0.4)',
               }}>
-              {step + 1 >= scenarios.length ? '¡VER MI RECOMPENSA! 🏴‍☠️' : 'SIGUIENTE ISLA →'}
+              {step + 1 >= scenarios.length ? t.game.seeBounty : t.game.nextIsland}
             </button>
           </div>
         )}

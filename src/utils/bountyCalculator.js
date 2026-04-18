@@ -1,19 +1,10 @@
+import { translations } from '../i18n/translations';
+
 export function calculateBounty(character, decisions) {
-  const baseBounty = 1_000_000;
-
-  const statTotal =
-    character.stats.strength +
-    character.stats.speed +
-    character.stats.intelligence +
-    character.stats.stealth +
-    character.stats.charisma;
-
-  const fruit = character.devilFruit;
-  const fruitMultiplier = fruit?.bountyMultiplier ?? 1.0;
-
+  const statTotal = Object.values(character.stats).reduce((a, b) => a + b, 0);
+  const fruitMultiplier = character.devilFruit?.bountyMultiplier ?? 1.0;
   const decisionBonuses = decisions.reduce((sum, d) => sum + (d.bountyBonus ?? 0), 0);
-
-  const raw = (baseBounty + statTotal * 500_000 + decisionBonuses) * fruitMultiplier;
+  const raw = (1_000_000 + statTotal * 500_000 + decisionBonuses) * fruitMultiplier;
   return Math.max(0, Math.round(raw / 100_000) * 100_000);
 }
 
@@ -23,11 +14,10 @@ export function formatBounty(amount) {
   return `${(amount / 1_000).toFixed(0)}K`;
 }
 
-export function getBountyRank(amount) {
-  if (amount >= 500_000_000) return { rank: 'Yonko', color: 'text-red-400' };
-  if (amount >= 200_000_000) return { rank: 'Gran Corsario', color: 'text-orange-400' };
-  if (amount >= 100_000_000) return { rank: 'Supernoeva', color: 'text-yellow-400' };
-  if (amount >= 50_000_000) return { rank: 'Pirata Notorio', color: 'text-lime-400' };
-  if (amount >= 10_000_000) return { rank: 'Pirata Conocido', color: 'text-sky-400' };
-  return { rank: 'Pirata Novato', color: 'text-stone-400' };
+export function getBountyRank(amount, lang = 'es') {
+  const ranks = translations[lang]?.ranks ?? translations.es.ranks;
+  for (const r of ranks) {
+    if (amount >= r.min) return { rank: r.rank, color: r.color };
+  }
+  return ranks[ranks.length - 1];
 }

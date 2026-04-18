@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { renderPosterToCanvas } from '../utils/posterCanvas';
 import { playFanfare, playSelect, playClick } from '../utils/sounds';
+import { useLang } from '../i18n/LangContext';
 
 const GRID = 3;
 const TOTAL = GRID * GRID;
@@ -33,7 +34,8 @@ function isSolved(tiles) {
   return tiles.every((v, i) => v === i);
 }
 
-export default function PuzzleReveal({ character, bounty, decisions, crew }) {
+export default function PuzzleReveal({ character, bounty, decisions }) {
+  const { t, lang } = useLang();
   const [imageUrl, setImageUrl] = useState(null);
   const [imgSize, setImgSize] = useState(null);
   const [tiles, setTiles] = useState(null);
@@ -43,7 +45,7 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
 
   useEffect(() => {
     let cancelled = false;
-    renderPosterToCanvas({ character, bounty, decisions }).then((canvas) => {
+    renderPosterToCanvas({ character, bounty, decisions, lang }).then((canvas) => {
       if (cancelled) return;
       setImgSize({ w: canvas.width, h: canvas.height });
       setImageUrl(canvas.toDataURL('image/png'));
@@ -102,23 +104,21 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
       {!imageUrl ? (
         <div className="flex flex-col items-center gap-3 py-8">
           <div className="text-5xl float">⏳</div>
-          <p className="text-blue-200 font-black text-lg">Preparando tu recompensa...</p>
+          <p className="text-blue-200 font-black text-lg">{t.puzzle.preparing}</p>
         </div>
       ) : !solved ? (
         <div className="flex flex-col items-center gap-3 animate-fadein">
           <p className="text-yellow-400 font-black text-xl text-center"
             style={{ fontFamily: 'Bangers, sans-serif', letterSpacing: '0.05em' }}>
-            🧩 ¡MONTA EL PUZZLE!
+            {t.puzzle.heading}
           </p>
-          <p className="text-blue-200 text-sm text-center">Descubre tu cartel de recompensa</p>
-          <p className="text-white/40 text-xs">{moves} movimientos</p>
+          <p className="text-blue-200 text-sm text-center">{t.puzzle.sub}</p>
+          <p className="text-white/40 text-xs">{moves} {t.puzzle.movesLabel}</p>
 
           <div style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${GRID}, ${tileW}px)`,
-            gap: 4,
-            padding: 6,
-            borderRadius: 20,
+            gap: 4, padding: 6, borderRadius: 20,
             background: 'rgba(255,255,255,0.06)',
             border: '2px solid rgba(255,255,255,0.1)',
             position: 'relative',
@@ -132,30 +132,22 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
                 opacity: 0.85,
               }} />
             )}
-
             {tiles && tiles.map((tileValue, cellIdx) => {
               const isEmpty = tileValue === EMPTY;
               const tileRow = Math.floor(tileValue / GRID);
               const tileCol = tileValue % GRID;
               const isMovable = getNeighbors(tiles.indexOf(EMPTY)).includes(cellIdx);
-
               return (
                 <div key={cellIdx}
                   onClick={() => handleTileClick(cellIdx)}
                   style={{
-                    width: tileW,
-                    height: tileH,
-                    borderRadius: 10,
+                    width: tileW, height: tileH, borderRadius: 10,
                     cursor: isEmpty ? 'default' : isMovable ? 'pointer' : 'default',
                     backgroundImage: isEmpty ? 'none' : `url(${imageUrl})`,
                     backgroundSize: `${bgW}px ${bgH}px`,
                     backgroundPosition: `-${tileCol * tileW}px -${tileRow * tileH}px`,
                     backgroundColor: isEmpty ? 'rgba(255,255,255,0.03)' : undefined,
-                    border: isEmpty
-                      ? '2px dashed rgba(255,255,255,0.08)'
-                      : isMovable
-                        ? '2px solid rgba(245,158,11,0.6)'
-                        : '2px solid rgba(255,255,255,0.15)',
+                    border: isEmpty ? '2px dashed rgba(255,255,255,0.08)' : isMovable ? '2px solid rgba(245,158,11,0.6)' : '2px solid rgba(255,255,255,0.15)',
                     transition: 'border-color 0.15s, transform 0.1s',
                     transform: isMovable && !isEmpty ? 'scale(1.02)' : 'scale(1)',
                     boxShadow: isMovable && !isEmpty ? '0 0 12px rgba(245,158,11,0.3)' : 'none',
@@ -168,11 +160,11 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
           <div className="flex gap-3 mt-1">
             <button onClick={showHint}
               className="px-4 py-2 rounded-xl border-2 border-white/20 text-white/60 font-bold text-sm hover:border-yellow-400/60 hover:text-yellow-400 active:scale-95 transition-all">
-              👁️ Pista (2s)
+              {t.puzzle.hint}
             </button>
             <button onClick={() => { setTiles(shufflePuzzle()); setMoves(0); playClick(); }}
               className="px-4 py-2 rounded-xl border-2 border-white/20 text-white/60 font-bold text-sm hover:border-red-400/60 hover:text-red-400 active:scale-95 transition-all">
-              🔀 Mezclar
+              {t.puzzle.shuffle}
             </button>
           </div>
         </div>
@@ -180,9 +172,9 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
         <div className="flex flex-col items-center gap-4 animate-popin">
           <p className="text-yellow-400 font-black text-2xl text-center"
             style={{ fontFamily: 'Bangers, sans-serif', letterSpacing: '0.05em' }}>
-            🎉 ¡PUZZLE RESUELTO!
+            {t.puzzle.solved}
           </p>
-          <p className="text-white/60 text-sm">{moves} movimientos</p>
+          <p className="text-white/60 text-sm">{moves} {t.puzzle.movesLabel}</p>
           <img src={imageUrl} style={{ width: DISPLAY_W, borderRadius: 8, boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }} alt="Wanted poster" />
           <button onClick={downloadPoster}
             className="px-6 py-3 rounded-2xl font-black text-stone-900 active:scale-95 transition-all"
@@ -191,7 +183,7 @@ export default function PuzzleReveal({ character, bounty, decisions, crew }) {
               background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
               boxShadow: '0 4px 20px rgba(245,158,11,0.5)',
             }}>
-            📥 DESCARGAR POSTER
+            {t.puzzle.download}
           </button>
         </div>
       )}

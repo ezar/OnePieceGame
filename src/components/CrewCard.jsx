@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
 import { playSuccess } from '../utils/sounds';
+import { useLang } from '../i18n/LangContext';
 
 export default function CrewCard({ member, onDismiss }) {
+  const { t } = useLang();
+
   useEffect(() => {
     playSuccess();
-    const t = setTimeout(onDismiss, 3500);
-    return () => clearTimeout(t);
+    const timer = setTimeout(onDismiss, 3500);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -18,7 +21,7 @@ export default function CrewCard({ member, onDismiss }) {
         style={{ background: `linear-gradient(135deg, #0c1e3e, ${member.color}33)`, borderColor: member.color }}
       >
         <p className="text-sm font-bold tracking-widest mb-2" style={{ color: member.color }}>
-          ✦ NUEVO TRIPULANTE ✦
+          {t.crewCard.newMember}
         </p>
         <div className="text-8xl float mb-4">{member.emoji}</div>
         <h2 className="text-2xl font-black text-white mb-1" style={{ fontFamily: 'Bangers, sans-serif', letterSpacing: '0.05em' }}>
@@ -29,7 +32,7 @@ export default function CrewCard({ member, onDismiss }) {
           {member.bonusText}
         </div>
         <p className="text-stone-300 text-xs italic">"{member.quote}"</p>
-        <p className="text-stone-500 text-xs mt-4">Toca para continuar</p>
+        <p className="text-stone-500 text-xs mt-4">{t.crewCard.tapToContinue}</p>
       </div>
     </div>
   );

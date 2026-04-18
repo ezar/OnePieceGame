@@ -1,16 +1,9 @@
 import { formatBounty, getBountyRank } from './bountyCalculator';
+import { translations } from '../i18n/translations';
 
 const FRUIT_EMOJI = {
   gomu: '🌀', hana: '🌸', bara: '🔀', supa: '⚔️',
   mera: '🔥', hie: '❄️', yomi: '💀', none: null,
-};
-
-const TRAIT_LABELS = {
-  ruthless: 'Sin piedad', honorable: 'Código de honor',
-  friendly: 'Alma de marinero', brave: 'Temerario',
-  cunning: 'Astuto', cautious: 'Prudente',
-  robin_hood: 'Héroe del pueblo', free_spirit: 'Espíritu libre',
-  pragmatic: 'Pragmático',
 };
 
 function divider(ctx, W, y) {
@@ -27,8 +20,11 @@ function divider(ctx, W, y) {
   ctx.stroke();
 }
 
-export async function renderPosterToCanvas({ character, bounty, decisions }) {
+export async function renderPosterToCanvas({ character, bounty, decisions, lang = 'es' }) {
   await document.fonts.ready;
+
+  const p = translations[lang]?.poster ?? translations.es.poster;
+  const traits = translations[lang]?.traits ?? translations.es.traits;
 
   const W = 300;
   const H = 530;
@@ -72,11 +68,11 @@ export async function renderPosterToCanvas({ character, bounty, decisions }) {
   ctx.fillStyle = '#c9a84c';
   ctx.font = '700 9px Cinzel, serif';
   ctx.textAlign = 'center';
-  ctx.fillText('✦ GOBIERNO MUNDIAL ✦', W / 2, 20);
+  ctx.fillText(p.worldGov, W / 2, 20);
 
   ctx.fillStyle = 'rgba(232,213,163,0.65)';
   ctx.font = '400 7px Cinzel, serif';
-  ctx.fillText('MARINA FORD — CUARTEL GENERAL', W / 2, 35);
+  ctx.fillText(p.hq, W / 2, 35);
 
   // ── WANTED ───────────────────────────────────────────────
   ctx.fillStyle = '#1a0f00';
@@ -138,10 +134,10 @@ export async function renderPosterToCanvas({ character, bounty, decisions }) {
   ctx.fillText(character.name.toUpperCase(), W / 2, nameY);
 
   let cursorY = nameY + 8;
-  if (character.devilFruit?.id !== 'none') {
+  if (character.devilFruit?.id !== 'none' && character.devilFruit?.name) {
     ctx.fillStyle = '#6b4a12';
     ctx.font = 'italic 10px "IM Fell English", Georgia, serif';
-    ctx.fillText(`Usuario de la ${character.devilFruit.name}`, W / 2, nameY + 14);
+    ctx.fillText(p.fruitUser(character.devilFruit.name), W / 2, nameY + 14);
     cursorY = nameY + 22;
   }
 
@@ -152,7 +148,7 @@ export async function renderPosterToCanvas({ character, bounty, decisions }) {
   ctx.fillStyle = '#5c3d0a';
   ctx.font = '700 8px Cinzel, serif';
   ctx.textAlign = 'center';
-  ctx.fillText('RECOMPENSA', W / 2, cursorY);
+  ctx.fillText(p.bountyLabel, W / 2, cursorY);
 
   cursorY += 38;
   ctx.fillStyle = '#1a0f00';
@@ -165,22 +161,22 @@ export async function renderPosterToCanvas({ character, bounty, decisions }) {
   cursorY += 12;
   ctx.fillStyle = '#5c3d0a';
   ctx.font = '400 8px Cinzel, serif';
-  ctx.fillText('BERRIES', W / 2, cursorY);
+  ctx.fillText(p.berries, W / 2, cursorY);
 
   cursorY += 10;
   divider(ctx, W, cursorY + 2);
   cursorY += 14;
 
   // ── DETAILS ──────────────────────────────────────────────
-  const { rank } = getBountyRank(bounty);
+  const { rank } = getBountyRank(bounty, lang);
   const counts = {};
-  decisions.forEach((d) => { counts[d.trait] = (counts[d.trait] || 0) + 1; });
+  decisions.forEach((d) => { if (d?.trait) counts[d.trait] = (counts[d.trait] || 0) + 1; });
   const dominant = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'unknown';
 
   const rows = [
-    ['Origen', character.origin],
-    ['Rango', rank],
-    ['Estilo', TRAIT_LABELS[dominant] ?? dominant],
+    [p.origin, character.origin],
+    [p.rank, rank],
+    [p.style, traits[dominant] ?? dominant],
   ];
 
   rows.forEach(([label, value]) => {
@@ -220,7 +216,7 @@ export async function renderPosterToCanvas({ character, bounty, decisions }) {
   ctx.fillStyle = '#c9a84c';
   ctx.font = '700 8px Cinzel, serif';
   ctx.textAlign = 'center';
-  ctx.fillText('✦ MARINE HQ ✦', W / 2, cursorY + 18);
+  ctx.fillText(p.marineHQ, W / 2, cursorY + 18);
 
   return canvas;
 }

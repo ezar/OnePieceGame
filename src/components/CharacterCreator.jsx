@@ -1,27 +1,23 @@
 import { useState } from 'react';
-import { devilFruits } from '../data/devilFruits';
+import { getDevilFruits } from '../data/devilFruits';
 import { playClick, playSelect } from '../utils/sounds';
-
-const STAT_LABELS = {
-  strength:     { label: 'Fuerza',       emoji: '💪', color: 'text-red-400' },
-  speed:        { label: 'Velocidad',    emoji: '⚡', color: 'text-yellow-400' },
-  intelligence: { label: 'Inteligencia', emoji: '🧠', color: 'text-blue-400' },
-  stealth:      { label: 'Sigilo',       emoji: '🌑', color: 'text-purple-400' },
-  charisma:     { label: 'Carisma',      emoji: '✨', color: 'text-pink-400' },
-};
+import { useLang } from '../i18n/LangContext';
 
 const STAT_POINTS = 10;
 const BASE_STATS = { strength: 1, speed: 1, intelligence: 1, stealth: 1, charisma: 1 };
+const ORIGINS = ['East Blue', 'West Blue', 'North Blue', 'South Blue', 'Grand Line'];
 
 export default function CharacterCreator({ onComplete }) {
+  const { t, lang } = useLang();
   const [name, setName] = useState('');
   const [origin, setOrigin] = useState('East Blue');
   const [fruitId, setFruitId] = useState('none');
   const [stats, setStats] = useState({ ...BASE_STATS });
 
+  const fruits = getDevilFruits(lang);
   const usedPoints = Object.values(stats).reduce((a, b) => a + b, 0) - 5;
   const remaining = STAT_POINTS - usedPoints;
-  const fruit = devilFruits.find((f) => f.id === fruitId);
+  const fruit = fruits.find((f) => f.id === fruitId);
 
   function adjustStat(key, delta) {
     const next = stats[key] + delta;
@@ -40,52 +36,48 @@ export default function CharacterCreator({ onComplete }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10 animate-fadein">
-      {/* Header */}
       <div className="text-center mb-8">
         <div className="text-6xl float mb-2">🏴‍☠️</div>
         <h1 className="text-5xl font-black text-yellow-400 tracking-wide"
           style={{ fontFamily: 'Bangers, sans-serif', textShadow: '3px 3px 0 rgba(0,0,0,0.5)' }}>
           ONE PIECE
         </h1>
-        <p className="text-blue-200 font-bold mt-1">¡Crea tu personaje pirata!</p>
+        <p className="text-blue-200 font-bold mt-1">{t.creator.subtitle}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5">
 
-        {/* Nombre */}
         <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)' }}>
-          <label className="block text-blue-200 font-bold text-sm mb-2">⚓ Tu nombre pirata</label>
+          <label className="block text-blue-200 font-bold text-sm mb-2">{t.creator.nameLabel}</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="ej. Monkey D. Luffy"
+            placeholder={t.creator.namePlaceholder}
             maxLength={30}
             className="w-full rounded-xl px-4 py-3 text-white font-bold text-lg placeholder-blue-300/40 focus:outline-none focus:ring-2 focus:ring-yellow-400"
             style={{ background: 'rgba(255,255,255,0.12)' }}
           />
         </div>
 
-        {/* Origen */}
         <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)' }}>
-          <label className="block text-blue-200 font-bold text-sm mb-2">🌊 Mar de origen</label>
+          <label className="block text-blue-200 font-bold text-sm mb-2">{t.creator.originLabel}</label>
           <select
             value={origin}
             onChange={(e) => setOrigin(e.target.value)}
             className="w-full rounded-xl px-4 py-3 text-white font-bold focus:outline-none focus:ring-2 focus:ring-yellow-400"
             style={{ background: 'rgba(255,255,255,0.12)' }}
           >
-            {['East Blue', 'West Blue', 'North Blue', 'South Blue', 'Grand Line'].map((s) => (
+            {ORIGINS.map((s) => (
               <option key={s} value={s} style={{ background: '#0a3a6b' }}>{s}</option>
             ))}
           </select>
         </div>
 
-        {/* Akuma no Mi */}
         <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)' }}>
-          <label className="block text-blue-200 font-bold text-sm mb-3">🍎 Akuma no Mi</label>
+          <label className="block text-blue-200 font-bold text-sm mb-3">{t.creator.fruitLabel}</label>
           <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-            {devilFruits.map((f) => (
+            {fruits.map((f) => (
               <button key={f.id} type="button"
                 onClick={() => { playSelect(); setFruitId(f.id); }}
                 className={`text-left rounded-xl px-3 py-2 border-2 transition-all text-sm font-bold active:scale-95 ${
@@ -93,7 +85,7 @@ export default function CharacterCreator({ onComplete }) {
                     ? 'border-yellow-400 bg-yellow-400/20 text-yellow-300'
                     : 'border-white/10 bg-white/5 text-white hover:border-white/30'
                 }`}>
-                <span>{f.name === 'Ninguna' ? '❌' : '🍎'} {f.name}</span>
+                <span>{f.id === 'none' ? '❌' : '🍎'} {f.name}</span>
                 {f.type && <span className="block text-xs opacity-60">{f.type}</span>}
               </button>
             ))}
@@ -103,18 +95,17 @@ export default function CharacterCreator({ onComplete }) {
           )}
         </div>
 
-        {/* Stats */}
         <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)' }}>
           <div className="flex justify-between items-center mb-3">
-            <label className="text-blue-200 font-bold text-sm">⚡ Atributos</label>
+            <label className="text-blue-200 font-bold text-sm">{t.creator.statsLabel}</label>
             <span className={`text-sm font-black rounded-full px-3 py-1 ${
               remaining === 0 ? 'bg-yellow-400 text-stone-900' : 'bg-white/10 text-blue-200'
             }`}>
-              {remaining} pts
+              {remaining} {t.creator.remainingPts}
             </span>
           </div>
           <div className="space-y-2">
-            {Object.entries(STAT_LABELS).map(([key, { label, emoji, color }]) => {
+            {Object.entries(t.stats).map(([key, { label, emoji, color }]) => {
               const bonus = fruit?.statBonus?.[key] ?? 0;
               const total = stats[key] + bonus;
               return (
@@ -148,7 +139,7 @@ export default function CharacterCreator({ onComplete }) {
             background: !name.trim() ? '#6b7280' : 'linear-gradient(135deg, #f59e0b, #ef4444)',
             boxShadow: name.trim() ? '0 4px 20px rgba(245,158,11,0.5)' : 'none',
           }}>
-          ¡ZARPAR AL MAR! ⛵
+          {t.creator.submit}
         </button>
       </form>
     </div>
