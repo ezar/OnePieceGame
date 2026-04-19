@@ -1,11 +1,27 @@
 import { translations } from '../i18n/translations';
 
 export function calculateBounty(character, decisions) {
-  const statTotal = Object.values(character.stats).reduce((a, b) => a + b, 0);
+  const baseStat = Object.values(character.stats).reduce((a, b) => a + b, 0);
+  const fruitBonusStat = character.devilFruit?.statBonus
+    ? Object.values(character.devilFruit.statBonus).reduce((a, b) => a + b, 0)
+    : 0;
+  const statTotal = baseStat + fruitBonusStat;
   const fruitMultiplier = character.devilFruit?.bountyMultiplier ?? 1.0;
   const decisionBonuses = decisions.reduce((sum, d) => sum + (d.bountyBonus ?? 0), 0);
   const raw = (1_000_000 + statTotal * 500_000 + decisionBonuses) * fruitMultiplier;
   return Math.max(0, Math.round(raw / 100_000) * 100_000);
+}
+
+export function getBountyStatBonus(bounty, stats) {
+  const total = Math.floor(bounty / 10_000_000);
+  if (total === 0) return {};
+  const sorted = Object.entries(stats).sort(([, a], [, b]) => b - a);
+  const result = {};
+  for (let i = 0; i < total; i++) {
+    const [key] = sorted[i % sorted.length];
+    result[key] = (result[key] || 0) + 1;
+  }
+  return result;
 }
 
 export function formatBounty(amount) {

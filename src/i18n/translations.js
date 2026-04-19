@@ -49,6 +49,8 @@ export const translations = {
       adventureTitle: '📜 TU AVENTURA',
       finalBounty: 'Recompensa final',
       playAgain: '¡JUGAR DE NUEVO! 🔄',
+      bountyBonusTitle: '⚡ BONUS DE RECOMPENSA',
+      bountyBonusDesc: (n) => `Tu recompensa te ha otorgado +${n} punto${n > 1 ? 's' : ''} de atributo`,
     },
 
     puzzle: {
@@ -167,6 +169,8 @@ export const translations = {
       adventureTitle: '📜 YOUR ADVENTURE',
       finalBounty: 'Final bounty',
       playAgain: 'PLAY AGAIN! 🔄',
+      bountyBonusTitle: '⚡ BOUNTY BONUS',
+      bountyBonusDesc: (n) => `Your bounty granted you +${n} attribute point${n > 1 ? 's' : ''}`,
     },
 
     puzzle: {

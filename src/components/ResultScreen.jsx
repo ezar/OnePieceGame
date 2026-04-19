@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import PuzzleReveal from './PuzzleReveal';
-import { getBountyRank, formatBounty } from '../utils/bountyCalculator';
+import { getBountyRank, formatBounty, getBountyStatBonus } from '../utils/bountyCalculator';
 import { playFanfare, playClick } from '../utils/sounds';
 import { useLang } from '../i18n/LangContext';
 
@@ -21,6 +21,8 @@ export default function ResultScreen({ character, bounty, decisions, crew = [], 
   ];
 
   const earned = BADGES.filter((b) => b.condition(bounty, decisions, crew));
+  const bountyBonusPoints = Math.floor(bounty / 10_000_000);
+  const bountyBonuses = getBountyStatBonus(bounty, character.stats);
 
   useEffect(() => {
     playFanfare();
@@ -84,6 +86,27 @@ export default function ResultScreen({ character, bounty, decisions, crew = [], 
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {bountyBonusPoints > 0 && (
+        <div className="w-full max-w-md mb-6 animate-slideup rounded-3xl p-4 border border-cyan-400/20"
+          style={{ background: 'rgba(6,182,212,0.07)', backdropFilter: 'blur(8px)' }}>
+          <p className="text-center text-xs font-black text-cyan-300 mb-1 tracking-widest">{t.result.bountyBonusTitle}</p>
+          <p className="text-center text-xs text-white/40 mb-3">{t.result.bountyBonusDesc(bountyBonusPoints)}</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {Object.entries(bountyBonuses).map(([stat, pts]) => {
+              const statInfo = t.stats[stat];
+              return (
+                <div key={stat} className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 border border-cyan-400/30"
+                  style={{ background: 'rgba(6,182,212,0.1)' }}>
+                  <span className="text-base">{statInfo.emoji}</span>
+                  <span className={`text-xs font-black ${statInfo.color}`}>{statInfo.label}</span>
+                  <span className="text-cyan-400 text-xs font-black">+{pts}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

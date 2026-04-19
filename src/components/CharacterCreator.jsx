@@ -85,12 +85,12 @@ export default function CharacterCreator({ onComplete }) {
                     ? 'border-yellow-400 bg-yellow-400/20 text-yellow-300'
                     : 'border-white/10 bg-white/5 text-white hover:border-white/30'
                 }`}>
-                <span>{f.id === 'none' ? '❌' : '🍎'} {f.name}</span>
+                <span>{f.id === 'none' ? '💪' : '🍎'} {f.name}</span>
                 {f.type && <span className="block text-xs opacity-60">{f.type}</span>}
               </button>
             ))}
           </div>
-          {fruit && fruit.id !== 'none' && (
+          {fruit && (
             <p className="mt-3 text-xs text-blue-200 bg-white/5 rounded-xl px-3 py-2">{fruit.description}</p>
           )}
         </div>
@@ -117,7 +117,10 @@ export default function CharacterCreator({ onComplete }) {
                   </button>
                   <div className="flex gap-1">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className={`w-4 h-4 rounded-sm transition-all ${i < total ? color.replace('text-', 'bg-') : 'bg-white/10'}`} />
+                      <div key={i} className={`w-4 h-4 rounded-sm transition-all ${i < stats[key] ? color.replace('text-', 'bg-') : 'bg-white/10'}`} />
+                    ))}
+                    {Array.from({ length: bonus }).map((_, i) => (
+                      <div key={`b${i}`} className="w-4 h-4 rounded-sm bg-yellow-400" style={{ boxShadow: '0 0 5px rgba(245,158,11,0.7)' }} />
                     ))}
                   </div>
                   <button type="button" onClick={() => adjustStat(key, 1)}
