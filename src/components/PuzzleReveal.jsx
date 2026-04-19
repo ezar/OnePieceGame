@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import { renderPosterToCanvas } from '../utils/posterCanvas';
 import { playFanfare, playSelect, playClick } from '../utils/sounds';
 import { useLang } from '../i18n/LangContext';
+import { formatBounty } from '../utils/bountyCalculator';
 
 const GRID = 3;
 const TOTAL = GRID * GRID;
@@ -42,6 +43,7 @@ export default function PuzzleReveal({ character, bounty, decisions }) {
   const [solved, setSolved] = useState(false);
   const [moves, setMoves] = useState(0);
   const [hint, setHint] = useState(false);
+  const [shared, setShared] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,6 +81,37 @@ export default function PuzzleReveal({ character, bounty, decisions }) {
     playClick();
     setHint(true);
     setTimeout(() => setHint(false), 2000);
+  }
+
+  async function sharePoster() {
+    if (!imageUrl) return;
+    playClick();
+    const shareText = lang === 'es'
+      ? `¡Mi recompensa pirata es ${formatBounty(bounty)}! 🏴‍☠️ #OnePieceGame`
+      : `My pirate bounty is ${formatBounty(bounty)}! 🏴‍☠️ #OnePieceGame`;
+
+    try {
+      const res = await fetch(imageUrl);
+      const blob = await res.blob();
+      const file = new File([blob], `wanted_${character.name.replace(/\s+/g, '_')}.png`, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: `${character.name} — ${formatBounty(bounty)}`, text: shareText });
+        return;
+      }
+      if (navigator.share) {
+        await navigator.share({ title: `${character.name} — ${formatBounty(bounty)}`, text: shareText });
+        return;
+      }
+    } catch {
+      // user cancelled or share failed — fall through to clipboard
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch { /* ignore */ }
   }
 
   function downloadPoster() {
@@ -176,15 +209,26 @@ export default function PuzzleReveal({ character, bounty, decisions }) {
           </p>
           <p className="text-white/60 text-sm">{moves} {t.puzzle.movesLabel}</p>
           <img src={imageUrl} style={{ width: DISPLAY_W, borderRadius: 8, boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }} alt="Wanted poster" />
-          <button onClick={downloadPoster}
-            className="px-6 py-3 rounded-2xl font-black text-stone-900 active:scale-95 transition-all"
-            style={{
-              fontFamily: 'Bangers, sans-serif', letterSpacing: '0.06em', fontSize: 18,
-              background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-              boxShadow: '0 4px 20px rgba(245,158,11,0.5)',
-            }}>
-            {t.puzzle.download}
-          </button>
+          <div className="flex gap-3 flex-wrap justify-center">
+            <button onClick={downloadPoster}
+              className="px-6 py-3 rounded-2xl font-black text-stone-900 active:scale-95 transition-all"
+              style={{
+                fontFamily: 'Bangers, sans-serif', letterSpacing: '0.06em', fontSize: 18,
+                background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+                boxShadow: '0 4px 20px rgba(245,158,11,0.5)',
+              }}>
+              {t.puzzle.download}
+            </button>
+            <button onClick={sharePoster}
+              className="px-6 py-3 rounded-2xl font-black active:scale-95 transition-all border-2"
+              style={{
+                fontFamily: 'Bangers, sans-serif', letterSpacing: '0.06em', fontSize: 18,
+                borderColor: shared ? '#10b981' : 'rgba(255,255,255,0.3)',
+                color: shared ? '#10b981' : 'white',
+              }}>
+              {shared ? (t.puzzle.copied ?? '✅') : t.puzzle.share}
+            </button>
+          </div>
         </div>
       )}
     </div>

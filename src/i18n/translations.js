@@ -60,6 +60,8 @@ export const translations = {
       shuffle: '🔀 Mezclar',
       solved: '🎉 ¡PUZZLE RESUELTO!',
       download: '📥 DESCARGAR POSTER',
+      share: '🔗 COMPARTIR',
+      copied: '¡Enlace copiado!',
     },
 
     poster: {
@@ -176,6 +178,8 @@ export const translations = {
       shuffle: '🔀 Shuffle',
       solved: '🎉 PUZZLE SOLVED!',
       download: '📥 DOWNLOAD POSTER',
+      share: '🔗 SHARE',
+      copied: 'Link copied!',
     },
 
     poster: {
