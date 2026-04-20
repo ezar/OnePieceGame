@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig(({ command }) => ({
   define: {
-    __BUILD_DATE__: JSON.stringify(new Date().toISOString().split('T')[0]),
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC'),
   },
   plugins: [
     react(),
