@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import CharacterCreator from './components/CharacterCreator';
 import DecisionGame from './components/DecisionGame';
 import ResultScreen from './components/ResultScreen';
@@ -31,6 +32,22 @@ function LangToggle() {
 }
 
 /* global __BUILD_DATE__ */
+
+function UpdateBanner() {
+  const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW();
+  if (!needRefresh) return null;
+  return (
+    <div className="fixed top-12 left-1/2 z-50 -translate-x-1/2 flex items-center gap-3 px-4 py-2.5 rounded-2xl border border-yellow-400/40 shadow-lg animate-slideup"
+      style={{ background: 'rgba(10,30,60,0.92)', backdropFilter: 'blur(10px)' }}>
+      <span className="text-sm text-white/80">🆕 Nueva versión disponible</span>
+      <button
+        onClick={() => updateServiceWorker(true)}
+        className="text-xs font-black text-yellow-400 hover:text-yellow-300 active:scale-95 transition-all border border-yellow-400/50 rounded-xl px-3 py-1">
+        Actualizar
+      </button>
+    </div>
+  );
+}
 
 function Footer() {
   const { t } = useLang();
@@ -72,6 +89,7 @@ function AppInner() {
     <>
       <OceanBg />
       <LangToggle />
+      <UpdateBanner />
       <div style={{ position: 'relative', zIndex: 1, paddingBottom: '2rem' }}>
         {step === STEPS.CREATE && <CharacterCreator onComplete={handleCharacterComplete} />}
         {step === STEPS.PLAY && (
