@@ -110,24 +110,26 @@ export default function CharacterCreator({ onComplete }) {
               const total = stats[key] + bonus;
               return (
                 <div key={key} className="flex items-center gap-2">
-                  <span className={`text-sm font-bold w-28 ${color}`}>{emoji} {label}</span>
+                  <span className={`text-sm font-bold w-24 shrink-0 ${color}`}>{emoji} {label}</span>
                   <button type="button" onClick={() => adjustStat(key, -1)}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-black text-lg flex items-center justify-center active:scale-90 transition-all">
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-black text-lg flex items-center justify-center active:scale-90 transition-all shrink-0">
                     −
                   </button>
                   <div className="flex gap-1">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className={`w-4 h-4 rounded-sm transition-all ${i < stats[key] ? color.replace('text-', 'bg-') : 'bg-white/10'}`} />
-                    ))}
-                    {Array.from({ length: bonus }).map((_, i) => (
-                      <div key={`b${i}`} className="w-4 h-4 rounded-sm bg-yellow-400" style={{ boxShadow: '0 0 5px rgba(245,158,11,0.7)' }} />
+                      <div key={i} className={`w-3 h-3 rounded-sm transition-all ${i < stats[key] ? color.replace('text-', 'bg-') : 'bg-white/10'}`} />
                     ))}
                   </div>
                   <button type="button" onClick={() => adjustStat(key, 1)}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-black text-lg flex items-center justify-center active:scale-90 transition-all">
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-black text-lg flex items-center justify-center active:scale-90 transition-all shrink-0">
                     +
                   </button>
-                  {bonus > 0 && <span className="text-xs text-yellow-400 font-bold">+{bonus}</span>}
+                  {bonus > 0 && (
+                    <span className="text-xs font-black text-yellow-400 shrink-0 rounded px-1.5 py-0.5"
+                      style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)' }}>
+                      +{bonus}
+                    </span>
+                  )}
                 </div>
               );
             })}
