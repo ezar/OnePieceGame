@@ -30,6 +30,20 @@ function LangToggle() {
   );
 }
 
+/* global __BUILD_DATE__ */
+
+function Footer() {
+  const { t } = useLang();
+  return (
+    <footer className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center gap-2 py-1.5 px-4 text-center"
+      style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}>
+      <span className="text-white/35 text-xs">{t.footer.disclaimer}</span>
+      <span className="text-white/20 text-xs">·</span>
+      <span className="text-white/25 text-xs font-mono">{__BUILD_DATE__}</span>
+    </footer>
+  );
+}
+
 function AppInner() {
   const [step, setStep] = useState(STEPS.CREATE);
   const [character, setCharacter] = useState(null);
@@ -58,7 +72,7 @@ function AppInner() {
     <>
       <OceanBg />
       <LangToggle />
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ position: 'relative', zIndex: 1, paddingBottom: '2rem' }}>
         {step === STEPS.CREATE && <CharacterCreator onComplete={handleCharacterComplete} />}
         {step === STEPS.PLAY && (
           <DecisionGame character={character} onComplete={handleDecisionsComplete} />
@@ -73,6 +87,7 @@ function AppInner() {
           />
         )}
       </div>
+      <Footer />
     </>
   );
 }

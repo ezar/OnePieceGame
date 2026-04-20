@@ -95,6 +95,10 @@ export const translations = {
       crew4:    { label: 'Capitán Completo',  desc: 'Reclutaste a toda la tripulación' },
     },
 
+    footer: {
+      disclaimer: 'Fan game no oficial · One Piece © Eiichiro Oda / Toei Animation',
+    },
+
     ranks: [
       { min: 500_000_000, rank: 'Yonko',           color: 'text-red-400' },
       { min: 200_000_000, rank: 'Gran Corsario',    color: 'text-orange-400' },
@@ -213,6 +217,10 @@ export const translations = {
       astuto:   { label: 'Sea Fox',          desc: '2+ cunning decisions' },
       perfecto: { label: 'Perfect Run',      desc: 'All successes!' },
       crew4:    { label: 'Full Captain',     desc: 'Recruited the full crew' },
+    },
+
+    footer: {
+      disclaimer: 'Unofficial fan game · One Piece © Eiichiro Oda / Toei Animation',
     },
 
     ranks: [
