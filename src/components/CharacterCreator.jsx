@@ -110,7 +110,7 @@ export default function CharacterCreator({ onComplete }) {
               const total = stats[key] + bonus;
               return (
                 <div key={key} className="flex items-center gap-2">
-                  <span className={`text-sm font-bold w-24 shrink-0 ${color}`}>{emoji} {label}</span>
+                  <span className={`text-sm font-bold w-28 shrink-0 ${color}`}>{emoji} {label}</span>
                   <button type="button" onClick={() => adjustStat(key, -1)}
                     className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-black text-lg flex items-center justify-center active:scale-90 transition-all shrink-0">
                     −
