@@ -4,7 +4,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig(({ command }) => ({
   define: {
-    __BUILD_DATE__: JSON.stringify(new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC'),
+    __BUILD_DATE__: JSON.stringify((() => {
+      const d = new Date();
+      const yy = String(d.getUTCFullYear()).slice(2);
+      const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(d.getUTCDate()).padStart(2, '0');
+      const hhmm = String(d.getUTCHours()).padStart(2, '0') + String(d.getUTCMinutes()).padStart(2, '0');
+      return `v${yy}.${mm}.${dd}.${hhmm}`;
+    })()),
   },
   plugins: [
     react(),
